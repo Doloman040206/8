@@ -1,0 +1,215 @@
+<!doctype html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Події Миші</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+          #pizza-section {
+            text-align: center;
+            margin: 30px;
+        }
+
+        .img-1 {
+            list-style: none;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 0;
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .img-1 li {
+            margin: 10px;
+            position: relative;
+        }
+
+        .img-1 li img {
+            width: 200px;
+            height: auto;
+            transition: transform 0.3s;
+            cursor: pointer;
+        }
+
+        .img-1 li img:hover {
+            transform: scale(1.1);
+        }
+
+
+        h2 {
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        
+
+        .pizza-section {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: center;
+            padding: 20px;
+            gap: 10px;
+        }
+
+        .pizza {
+            width: 150px;
+            height: 150px;
+            background-color: #ffe0b3;
+            border: 2px solid #ccc;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            transition: transform 0.3s, border-color 0.3s;
+        }
+
+        .pizza:hover {
+            cursor: pointer;
+        }
+
+        .drag-section {
+            margin-top: 50px;
+            text-align: center;
+        }
+
+        .draggable {
+            width: 150px;
+            height: 150px;
+            background-color: yellow;
+            border: 2px solid black;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: absolute;
+            cursor: grab;
+        }
+
+        .dropzone {
+            width: 300px;
+            height: 200px;
+            margin: 50px auto;
+            border: 2px dashed gray;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+        }
+    </style>
+</head>
+
+<body>
+    <h2>Події миші</h2>
+    
+    <!-- Секція з піцами -->
+    <div class="pizza-section">
+        <ul class="img-1">
+            <li>
+                <img src="./pizza/1.jpg" alt="Pizza 1" class="pizza-img">
+            </li>
+            <li>
+                <img src="./pizza/2.jpg" alt="Pizza 2" class="pizza-img">
+            </li>
+            <li>
+                <img src="./pizza/3.jpg" alt="Pizza 3" class="pizza-img">
+            </li>
+            <li>
+                <img src="./pizza/4.jpg" alt="Pizza 4" class="pizza-img">
+            </li>
+            <li>
+                <img src="./pizza/5.jpg" alt="Pizza 5" class="pizza-img">
+            </li>
+            <li>
+                <img src="./pizza/6.jpg" alt="Pizza 6" class="pizza-img">
+            </li>
+            
+        </ul>
+    </div>
+
+    <!-- Секція з dropzone -->
+    <div class="drag-section">
+        <!-- Перетягуваний елемент -->
+        <div class="draggable" id="draggable">Перетягни мене</div>
+
+        <!-- Зона скидання -->
+        <div class="dropzone" id="dropzone">Dropzone</div>
+    </div>
+
+     <script>
+    /* === Обробка подій mouseover та mouseout для елементів піци === */
+    const pizzas = document.querySelectorAll('.pizza');
+    
+    pizzas.forEach(pizza => {
+      pizza.addEventListener('mouseover', function(event) {
+        // event.target – елемент, на який націлено курсор;
+        // event.relatedTarget – елемент, з якого курсор прибув (може бути null).
+        console.log('Mouse over:', event.target, 'З попереднього елемента:', event.relatedTarget);
+        event.target.style.borderColor = 'green';
+        event.target.style.transform = 'scale(1.1)';
+      });
+      
+      pizza.addEventListener('mouseout', function(event) {
+        console.log('Mouse out:', event.target, 'До елемента:', event.relatedTarget);
+        event.target.style.borderColor = '#ccc';
+        event.target.style.transform = 'scale(1)';
+      });
+    });
+    
+    /* === Реалізація перетягування елемента === */
+    const draggable = document.getElementById('draggable');
+    let isDragging = false;
+    let offsetX = 0;
+    let offsetY = 0;
+    
+    // При натисканні миші на перетягуваний елемент
+    draggable.addEventListener('mousedown', function(event) {
+      isDragging = true;
+      // Обчислюємо зміщення, щоб елемент "прилип" до курсора в тому самому місці
+      const rect = draggable.getBoundingClientRect();
+      offsetX = event.clientX - rect.left;
+      offsetY = event.clientY - rect.top;
+      draggable.style.zIndex = 1000;  // Виносимо елемент на передній план
+    });
+    
+    // Переміщення елемента разом з курсором
+    document.addEventListener('mousemove', function(event) {
+      if (!isDragging) return;
+      // Нові координати з урахуванням зміщення
+      const posX = event.clientX - offsetX;
+      const posY = event.clientY - offsetY;
+      draggable.style.left = posX + 'px';
+      draggable.style.top = posY + 'px';
+    });
+    
+    // Завершення перетягування при відпусканні кнопки миші
+    document.addEventListener('mouseup', function(event) {
+      if (isDragging) {
+        isDragging = false;
+        draggable.style.zIndex = '';
+        
+        // Опціонально: перевірка, чи було відпущено елемент у зоні скидання
+        const dropzone = document.getElementById('dropzone');
+        const dzRect = dropzone.getBoundingClientRect();
+        const dRect = draggable.getBoundingClientRect();
+        
+        // Якщо прямокутники перетинаються – елемент скинуто в зону
+        if (dRect.left < dzRect.right &&
+            dRect.right > dzRect.left &&
+            dRect.top < dzRect.bottom &&
+            dRect.bottom > dzRect.top) {
+          dropzone.style.backgroundColor = '#aaffaa';
+        } else {
+          dropzone.style.backgroundColor = '';
+        }
+      }
+    });
+  </script>
+</body>
+
+</html>
